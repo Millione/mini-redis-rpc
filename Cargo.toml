@@ -1,0 +1,38 @@
+[package]
+name = "mini-redis-rpc"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+readme = "README.md"
+documentation = "https://docs.rs/mini-redis-rpc/0.1.0/mini-redis-rpc/"
+repository = "https://github.com/Million/mini-redis-rpc"
+description = """
+An incomplete implementation of a Redis client and server. Used as a
+usage example of an idiomatic Volo application.
+"""
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "mini-redis-rpc-cli"
+path = "src/bin/cli.rs"
+
+[[bin]]
+name = "mini-redis-rpc-server"
+path = "src/bin/server.rs"
+
+[dependencies]
+pilota = "0.8"
+
+volo = "0.5"
+volo-thrift = "0.7"
+
+anyhow = "1"
+async-trait = "0.1"
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[build-dependencies]
+volo-build = "0.6"
