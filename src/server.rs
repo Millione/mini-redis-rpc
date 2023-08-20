@@ -42,8 +42,8 @@ impl RedisService for Server {
         Ok(())
     }
 
-    async fn del(&self, key: FastStr) -> Result<bool, AnyhowError> {
-        Ok(self.db.del(&key).is_some())
+    async fn del(&self, keys: Vec<FastStr>) -> Result<i64, AnyhowError> {
+        Ok(self.db.del(&keys))
     }
 
     async fn ping(&self) -> Result<(), AnyhowError> {

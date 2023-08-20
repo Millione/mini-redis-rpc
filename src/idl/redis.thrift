@@ -13,6 +13,6 @@ struct SetReq {
 service RedisService {
     GetResp get(1: string key),
     void set(1: SetReq req),
-    bool del(1: string key),
+    i64 del(1: list<string> keys),
     void ping(),
 }

@@ -90,22 +90,24 @@ impl Db {
         }
     }
 
-    pub fn del(&self, key: &FastStr) -> Option<FastStr> {
+    pub fn del(&self, keys: &Vec<FastStr>) -> i64 {
         let mut state = self.shared.state.lock().unwrap();
 
         let mut notify = false;
+        let mut del_num = 0;
 
-        let prev = state.entries.remove(key);
-
-        if let Some(prev) = &prev {
-            if let Some(when) = prev.expires_at {
-                notify = state
-                    .next_expiration()
-                    .map(|expiration| expiration > when)
-                    .unwrap_or(true);
-                state.expirations.remove(&(when, key.clone()));
+        keys.iter().for_each(|key| {
+            if let Some(prev) = state.entries.remove(key) {
+                del_num += 1;
+                if let Some(when) = prev.expires_at {
+                    notify = state
+                        .next_expiration()
+                        .map(|expiration| expiration > when)
+                        .unwrap_or(true);
+                    state.expirations.remove(&(when, key.clone()));
+                }
             }
-        }
+        });
 
         drop(state);
 
@@ -113,7 +115,7 @@ impl Db {
             self.shared.background_task.notify_one();
         }
 
-        prev.map(|entry| entry.value)
+        del_num
     }
 }
 

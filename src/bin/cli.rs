@@ -40,7 +40,7 @@ enum Command {
         expires: Option<i64>,
     },
     Del {
-        key: FastStr,
+        key: Vec<FastStr>,
     },
     Ping {
         msg: Option<FastStr>,
@@ -86,10 +86,8 @@ async fn main() -> Result<(), ResponseError<std::convert::Infallible>> {
                 .await?;
             println!("OK");
         }
-        Command::Del { key } => match client.del(key).await? {
-            true => println!("(integer) 1"),
-            false => println!("(integer) 0"),
-        },
+        Command::Del { key } => println!("(integer) {}", client.del(key).await?),
+
         Command::Ping { msg } => {
             client.ping().await?;
             match msg {
