@@ -36,3 +36,6 @@ tracing-subscriber = "0.3"
 
 [build-dependencies]
 volo-build = "0.6"
+
+[dev-dependencies]
+tokio-scoped = "0.2"

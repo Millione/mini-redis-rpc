@@ -55,8 +55,8 @@ impl RedisService for Server {
     }
 
     async fn subscribe(&self, channels: Vec<FastStr>) -> Result<Vec<FastStr>, AnyhowError> {
+        let mut messages = Vec::with_capacity(channels.len());
         let rxs = self.db.subscribe(channels);
-        let mut messages = Vec::new();
         for mut rx in rxs {
             messages.push(rx.recv().await.unwrap_or_default())
         }
