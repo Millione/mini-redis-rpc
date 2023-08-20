@@ -15,4 +15,6 @@ service RedisService {
     void set(1: SetReq req),
     i64 del(1: list<string> keys),
     void ping(),
+    i64 publish(1: string channel, 2: string message),
+    list<string> subscribe(1: list<string> channels),
 }

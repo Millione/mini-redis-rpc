@@ -8,7 +8,10 @@ use std::{
 };
 
 use pilota::FastStr;
-use tokio::{sync::Notify, time::Instant};
+use tokio::{
+    sync::{broadcast, Notify},
+    time::Instant,
+};
 
 #[derive(Clone, Debug)]
 pub struct Db {
@@ -26,6 +29,7 @@ struct Shared {
 struct State {
     entries: HashMap<FastStr, Entry>,
     expirations: BTreeSet<(Instant, FastStr)>,
+    pub_sub: HashMap<FastStr, broadcast::Sender<FastStr>>,
 }
 
 #[derive(Debug)]
@@ -40,6 +44,7 @@ impl Db {
             state: Mutex::new(State {
                 entries: HashMap::new(),
                 expirations: BTreeSet::new(),
+                pub_sub: HashMap::new(),
             }),
             background_task: Notify::new(),
             shutdown: AtomicBool::new(false),
@@ -90,7 +95,7 @@ impl Db {
         }
     }
 
-    pub fn del(&self, keys: &Vec<FastStr>) -> i64 {
+    pub fn del(&self, keys: &[FastStr]) -> i64 {
         let mut state = self.shared.state.lock().unwrap();
 
         let mut notify = false;
@@ -116,6 +121,32 @@ impl Db {
         }
 
         del_num
+    }
+
+    pub fn publish(&self, channel: FastStr, message: FastStr) -> i64 {
+        let state = self.shared.state.lock().unwrap();
+
+        state
+            .pub_sub
+            .get(&channel)
+            .map(|tx| tx.send(message).unwrap_or(0))
+            .unwrap_or(0) as i64
+    }
+
+    pub fn subscribe(&self, channels: Vec<FastStr>) -> Vec<broadcast::Receiver<FastStr>> {
+        let mut state = self.shared.state.lock().unwrap();
+
+        channels
+            .into_iter()
+            .map(|channel| match state.pub_sub.entry(channel) {
+                std::collections::hash_map::Entry::Occupied(e) => e.get().subscribe(),
+                std::collections::hash_map::Entry::Vacant(e) => {
+                    let (tx, rx) = broadcast::channel(1);
+                    e.insert(tx);
+                    rx
+                }
+            })
+            .collect()
     }
 }
 

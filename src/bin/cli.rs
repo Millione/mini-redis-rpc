@@ -45,6 +45,13 @@ enum Command {
     Ping {
         msg: Option<FastStr>,
     },
+    Publish {
+        channel: FastStr,
+        message: FastStr,
+    },
+    Subscribe {
+        channels: Vec<FastStr>,
+    },
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -87,12 +94,29 @@ async fn main() -> Result<(), ResponseError<std::convert::Infallible>> {
             println!("OK");
         }
         Command::Del { key } => println!("(integer) {}", client.del(key).await?),
-
         Command::Ping { msg } => {
             client.ping().await?;
             match msg {
                 Some(msg) => println!("{}", msg),
                 None => println!("PONG"),
+            }
+        }
+        Command::Publish { channel, message } => {
+            println!("(integer) {}", client.publish(channel, message).await?)
+        }
+        Command::Subscribe { channels } => {
+            for (i, channel) in channels.iter().enumerate() {
+                println!(
+                    "1) \"subscribe\"\n2) \"{}\"\n3) (integer) {}",
+                    channel,
+                    i + 1
+                );
+            }
+            let messages = client.subscribe(channels.clone()).await?;
+            for (i, message) in messages.iter().enumerate() {
+                if !message.is_empty() {
+                    println!("1) \"message\"\n2) \"{}\"\n3) \"{}\"", channels[i], message);
+                }
             }
         }
     }

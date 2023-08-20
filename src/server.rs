@@ -49,4 +49,17 @@ impl RedisService for Server {
     async fn ping(&self) -> Result<(), AnyhowError> {
         Ok(())
     }
+
+    async fn publish(&self, channel: FastStr, message: FastStr) -> Result<i64, AnyhowError> {
+        Ok(self.db.publish(channel, message))
+    }
+
+    async fn subscribe(&self, channels: Vec<FastStr>) -> Result<Vec<FastStr>, AnyhowError> {
+        let rxs = self.db.subscribe(channels);
+        let mut messages = Vec::new();
+        for mut rx in rxs {
+            messages.push(rx.recv().await.unwrap_or_default())
+        }
+        Ok(messages)
+    }
 }
