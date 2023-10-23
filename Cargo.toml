@@ -35,7 +35,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 
 [build-dependencies]
-volo-build = "0.6"
+volo-build = "0.8"
 
 [dev-dependencies]
 tokio-scoped = "0.2"
