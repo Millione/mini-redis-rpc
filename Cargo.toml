@@ -24,7 +24,7 @@ path = "src/bin/server.rs"
 [dependencies]
 pilota = "0.8"
 
-volo = "0.5"
+volo = "0.9"
 volo-thrift = "0.7"
 
 anyhow = "1"
