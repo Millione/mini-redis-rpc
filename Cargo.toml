@@ -22,7 +22,7 @@ name = "mini-redis-rpc-server"
 path = "src/bin/server.rs"
 
 [dependencies]
-pilota = "0.8"
+pilota = "0.10"
 
 volo = "0.5"
 volo-thrift = "0.7"
